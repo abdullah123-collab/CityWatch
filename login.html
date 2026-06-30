@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login — CityWatch</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="page-login">
+
+<!-- Navigation Bar -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <div class="logo">CityWatch</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="login.html">Register</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Login Form: simple form with validation handled in js/script.js -->
+<main class="container auth-card">
+  <h2>Login</h2>
+  <form id="loginForm" class="form" novalidate>
+    <!-- Email field: required and validated via JavaScript -->
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+
+    <!-- Password field: required -->
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="Enter password" required>
+
+    <button class="btn primary" type="submit">Login</button>
+    <p class="muted">Don't have an account? <a href="login.html">Register</a></p>
+  </form>
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div>CityWatch</div>
+    <div>© 2026 — University Project</div>
+  </div>
+</footer>
+
+<script src="js/script.js"></script>
+</body>
+</html>

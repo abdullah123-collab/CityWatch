@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Complaint History — CityWatch</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="page-history">
+
+<!-- Navigation Bar -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <div class="logo">CityWatch</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="login.html">Register</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Complaint History Table: shows all complaints with colored status badges -->
+<main class="container">
+  <section class="card">
+    <h2>Complaint History</h2>
+    <div class="table-wrap">
+      <table id="historyTable" class="table">
+        <thead>
+          <tr>
+            <th>Complaint ID</th>
+            <th>Title</th>
+            <th>Department</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script src="js/script.js"></script>
+</body>
+</html>
