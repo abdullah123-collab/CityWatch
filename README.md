@@ -22,6 +22,8 @@ The current frontend uses **localStorage** for demonstration purposes, while an 
 
 ---
 
+
+
 ## ✨ Features
 
 - 📝 **Complaint Reporting** — Submit new civic complaints with category and description
