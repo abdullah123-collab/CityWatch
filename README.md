@@ -1,14 +1,71 @@
-# CityWatch — Complete Full-Stack Civic Complaint Management Platform
+# 🏙️ CityWatch — Citizen Complaint Management System
 
-CityWatch is an enterprise-grade civic grievance and complaint management platform designed for municipal corporations, field inspectors, and residents. It connects citizens directly with municipal departments through verified reports, interactive OpenStreetMap geolocation, secure evidence upload, automated complaint routing, and real-time status tracking.
+> A web-based civic complaint management system designed to help citizens report urban issues and track the status of their complaints.
+
+CityWatch is a university **Database Management System (DBMS)** project that demonstrates how a civic complaint workflow can be designed using a simple web interface, structured complaint data, validation, and an SQL database schema.
 
 ---
 
-## 1. Project Architecture
+## 🎯 Project Overview
 
-The repository is organized into exactly four core application directories:
+Citizens need a simple way to report common civic issues such as:
 
-```
+- 🛣️ Road and infrastructure problems
+- 💡 Street light issues
+- 🗑️ Waste and sanitation problems
+- 💧 Water-related issues
+- 🚦 Traffic and public-area problems
+
+CityWatch provides a simple interface where users can submit complaints, view their complaint history, and monitor complaint status.
+
+The current frontend uses **localStorage** for demonstration purposes, while an SQL database schema is also included for future backend integration.
+
+---
+
+## ✨ Features
+
+- 📝 **Complaint Reporting** — Submit new civic complaints with category and description
+- 📋 **Complaint History** — View previously submitted complaints
+- 📊 **Dashboard** — View complaint statistics and recent complaints
+- 🔐 **Login Interface** — Basic login workflow
+- ✅ **Form Validation** — Client-side validation for complaint forms
+- 💾 **Local Storage** — Store demonstration data using browser `localStorage`
+- 🗄️ **SQL Schema** — Database schema included for future backend integration
+
+---
+
+## 🔄 Complaint Workflow
+
+```text
+Citizen
+   │
+   ▼
+Login
+   │
+   ▼
+Dashboard
+   │
+   ▼
+Submit Complaint
+   │
+   ▼
+Form Validation
+   │
+   ▼
+Store Complaint
+   │
+   ▼
+Complaint History
+   │
+   ▼
+Track Status
+````
+
+---
+
+## 📁 Project Structure
+
+```text
 CityWatch/
 ├── frontend/        # Citizen React Application (Vite, Port 5173)
 ├── backend/         # Express REST API & SQL Server Layer (Node.js, Port 3000)
