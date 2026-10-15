@@ -1,0 +1,41 @@
+{
+  "name": "citywatch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CityWatch frontend and SQL Server backend integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev:backend": "node backend/server.js",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:staff": "npm --prefix staff run dev",
+    "dev:admin": "npm --prefix admin run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:staff": "npm --prefix staff run build",
+    "build:admin": "npm --prefix admin run build",
+    "build:all": "npm run build:frontend && npm run build:staff && npm run build:admin",
+    "migrate": "node backend/src/migrations/migrate.js",
+    "test": "node backend/src/tests/run_tests.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "google-auth-library": "^11.3.0",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^1.56.0",
+    "msnodesqlv8": "^5.6.0",
+    "mssql": "^11.0.2",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.1.1",
+    "vite": "^6.0.11"
+  }
+}

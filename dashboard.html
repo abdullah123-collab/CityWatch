@@ -23,8 +23,9 @@
 <!-- Dashboard Header: welcome message and quick stats -->
 <main class="container dashboard">
   <section class="welcome">
-    <h2>Welcome,</h2>
-    <h1>Muhammad Abdullah</h1>
+    <p class="eyebrow">Citizen dashboard</p>
+    <h2>Welcome back</h2>
+    <h1 id="citizenName">CityWatch citizen</h1>
   </section>
 
   <!-- Statistics Cards: totals derived from complaint data -->
@@ -36,7 +37,7 @@
   <div class="actions">
     <a class="btn primary" href="newComplaint.html">New Complaint</a>
     <a class="btn outline" href="history.html">Complaint History</a>
-    <a class="btn danger" href="index.html">Logout</a>
+    <button class="btn danger" id="logoutButton" type="button">Sign out</button>
   </div>
 
   <!-- Recent Complaints Table: populated using JS dummy data -->
@@ -49,12 +50,14 @@
             <th>Complaint ID</th>
             <th>Title</th>
             <th>Department</th>
+            <th>Priority</th>
             <th>Status</th>
             <th>Date</th>
+            <th>Details</th>
           </tr>
         </thead>
         <tbody>
-          <!-- JS populates rows -->
+          <tr><td colspan="7">Loading complaints...</td></tr>
         </tbody>
       </table>
     </div>
