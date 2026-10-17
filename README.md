@@ -1,260 +1,283 @@
-# 🏙️ CityWatch — Citizen Complaint Management System
+# 🏙️ CityWatch — Municipal Civic Grievance Management System
 
-> A web-based civic complaint management system designed to help citizens report urban issues and track the status of their complaints.
+> A unified, high-performance, Python-based civic complaint management system engineered with **FastAPI**, **Jinja2**, HTML5, CSS3, and vanilla JavaScript.
 
-CityWatch is a university **Database Management System (DBMS)** project that demonstrates how a civic complaint workflow can be designed using a simple web interface, structured complaint data, validation, and an SQL database schema.
-
----
-
-## 🎯 Project Overview
-
-Citizens need a simple way to report common civic issues such as:
-
-- 🛣️ Road and infrastructure problems
-- 💡 Street light issues
-- 🗑️ Waste and sanitation problems
-- 💧 Water-related issues
-- 🚦 Traffic and public-area problems
-
-CityWatch provides a simple interface where users can submit complaints, view their complaint history, and monitor complaint status.
-
-The current frontend uses **localStorage** for demonstration purposes, while an SQL database schema is also included for future backend integration.
+CityWatch is an advanced **Database Management System (DBMS)** project designed to empower citizens to report urban issues, track resolution lifecycles, and enable municipal field staff and administrators to manage civic infrastructure efficiently.
 
 ---
 
-## ✨ Features
+## 🎯 Architectural Overview
 
-- 📝 **Complaint Reporting** — Submit new civic complaints with category and description
-- 📋 **Complaint History** — View previously submitted complaints
-- 📊 **Dashboard** — View complaint statistics and recent complaints
-- 🔐 **Login Interface** — Basic login workflow
-- ✅ **Form Validation** — Client-side validation for complaint forms
-- 💾 **Local Storage** — Store demonstration data using browser `localStorage`
-- 🗄️ **SQL Schema** — Database schema included for future backend integration
+CityWatch runs entirely on **Python** without any dependencies on Node.js, npm, Vite, React, JSX/TSX, or Express. A single Python process serves:
 
----
-
-## 🔄 Complaint Workflow
+1. **Citizen Portal** (`/`) — Civic landing page, registration, login, resident dashboard, new complaint submission with manual address validation, complaint history with keyword search and filters, complaint details with status history timeline, and 5-star citizen satisfaction feedback.
+2. **Field Staff Portal** (`/staff/`) — Municipal officer login with **department selection**, active case workload monitor (enforcing the `0 <= active_cases <= 5` database constraint), assigned complaint review, authorized citizen phone privacy disclosure, and inspector status updates with mandatory remarks.
+3. **Administrator Command Center** (`/admin/`) — System-wide grievance analytics, complaint registry, officer assignment modal, staff directory management, citizen registry, department administration, satisfaction reviews, and live audit trail viewer.
+4. **Health & Diagnostics** (`/health`, `/api/health`, `/api/departments`) — Honest system status probe and JSON endpoints.
 
 ```text
-Citizen
-   │
-   ▼
-Login
-   │
-   ▼
-Dashboard
-   │
-   ▼
-Submit Complaint
-   │
-   ▼
-Form Validation
-   │
-   ▼
-Store Complaint
-   │
-   ▼
-Complaint History
-   │
-   ▼
-Track Status
-````
+Browser Client
+      │
+      │ HTTP (Forms, Cookies, Multipart Uploads)
+      ▼
+┌────────────────────────────────────────────────────────┐
+│                   FastAPI / Uvicorn                    │
+│                 http://127.0.0.1:8000                  │
+├───────────────────┬───────────────────┬────────────────┤
+│  Citizen Router   │   Staff Router    │  Admin Router  │
+│        (/)        │     (/staff/)     │   (/admin/)    │
+├───────────────────┴───────────────────┴────────────────┤
+│       Session Security (Signed HttpOnly Cookies)       │
+│       Role-Based Access Control & Phone Privacy        │
+│     Department Validation for Field Staff Logins       │
+├────────────────────────────────────────────────────────┤
+│           Jinja2 Server-Rendered Templates             │
+│       19 HTML Templates + Municipal CSS Tokens         │
+├────────────────────────────────────────────────────────┤
+│           Repositories & Account Management            │
+│         auth, complaint, admin, account_manager        │
+├────────────────────────────────────────────────────────┤
+│           Database Layer (pyodbc / Mock)               │
+│        Microsoft SQL Server (Safety Gate: Offline)     │
+└────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 📁 Project Structure
+## ✨ Features & Capabilities
+
+- 🏛️ **Unified Single-Port Delivery** — One server (`http://127.0.0.1:8000`) powers all three portals with zero cross-origin CORS overhead.
+- 🏢 **Staff Department Validation** — Staff login requires selecting an assigned municipal department. The server strictly verifies that the officer belongs to the selected department; cross-department logins are blocked.
+- 🆔 **Flexible Staff Identifier** — Officers can authenticate using either their numeric Staff ID (e.g. `1`) or official email address (e.g. `ahmed.staff@example.com`).
+- 🔐 **Secure Salted Password Hashing** — Passwords are hashed with bcrypt (cost factor 12) using unique per-user salts. Plaintext passwords are never saved, returned, logged, or checked into Git.
+- 🔒 **Citizen Privacy Enforcement** — A citizen's contact phone number is strictly guarded: revealed only to the designated officer assigned to that specific complaint or an administrator.
+- 📍 **Structured Manual Address Entry** — Area/Locality, City, District, and Postal Code validation without relying on brittle third-party map APIs or fictitious geocoding.
+- 📎 **Multipart Evidence Uploads** — Supports JPEG, PNG, WEBP, and PDF attachments (up to 5MB each) with UUID sanitization and secure disk storage in `uploads/`.
+- 📊 **Workload & Capacity Management** — Enforces municipal staff workload limits (`active_cases <= 5`) to prevent officer burnout.
+- 🛡️ **Database Safety Isolation** — Respects SQL Server identity gates (`db_enabled=False` by default) so development and presentations run safely without risking production database corruption.
+- 🧪 **Comprehensive Automated Test Suite** — 63 automated tests covering routes, staff department validation, role protection, session security, privacy rules, input validation, and mock database workflows.
+
+---
+
+## 📁 Directory Structure
 
 ```text
 CityWatch/
-├── frontend/        # Citizen React Application (Vite, Port 5173)
-├── backend/         # Express REST API & SQL Server Layer (Node.js, Port 3000)
-├── staff/           # Field Staff Officer React Application (Vite, Port 5174)
-├── admin/           # Municipal Administrator React Application (Vite, Port 5175)
-├── Database/        # Existing Advanced DBMS SQL scripts (Preserved)
-└── package.json     # Workspace management and orchestrator scripts
+├── python_app/
+│   ├── app/
+│   │   ├── core/
+│   │   │   ├── account_manager.py # Safe CLI & admin account provisioning
+│   │   │   ├── config.py          # Pydantic environment configuration
+│   │   │   ├── demo_accounts.py   # Development-only offline demo accounts
+│   │   │   ├── security.py        # Bcrypt hashing & signed session cookies
+│   │   │   └── templates.py       # Starlette-compatible Jinja2 template engine
+│   │   ├── db/
+│   │   │   ├── connection.py      # pyodbc SQL Server connection & safety gate
+│   │   │   └── mock_driver.py     # Offline mock driver for isolated testing
+│   │   ├── repositories/
+│   │   │   ├── auth_repository.py       # Citizen & staff credential queries
+│   │   │   ├── complaint_repository.py  # Complaint lifecycle & ACID queries
+│   │   │   └── admin_repository.py      # Admin metrics, staff, & audit logs
+│   │   ├── routers/
+│   │   │   ├── citizen.py         # Citizen portal routes (/)
+│   │   │   ├── staff.py           # Field staff portal routes (/staff/)
+│   │   │   └── admin.py           # Administrator routes (/admin/)
+│   │   ├── static/
+│   │   │   ├── css/               # citizen.css, staff.css, admin.css
+│   │   │   └── images/            # Civic imagery & icons
+│   │   ├── templates/             # 19 Jinja2 templates (citizen, staff, admin, shared)
+│   │   └── main.py                # FastAPI application definition & mounting
+│   └── tests/                     # 63 automated pytest test cases
+├── Database/                      # Preserved Microsoft SQL Server schema scripts
+├── docs/
+│   ├── python-migration-plan.md   # Migration checklist & completion audit
+│   └── presentation-guide.md      # Presentation walkthrough & viva Q&A
+├── scripts/
+│   └── manage_accounts.py         # Secure CLI for Admin and Staff provisioning
+├── uploads/                       # Uploaded complaint evidence attachments
+├── .env                           # Local environment settings
+├── .env.example                   # Environment configuration template
+├── .gitignore                     # Standard Python gitignore rules
+├── pytest.ini                     # Pytest configuration
+├── requirements.txt               # Python package dependencies
+└── run.py                         # Unified application launcher
 ```
-
-### Directory Responsibilities
-
-1. **`frontend/` (Citizen Portal - Port 5173)**
-   - Modern civic landing page with municipal impact statistics and category highlights.
-   - Citizen registration with password hashing, phone validation, and SQL Server persistence.
-   - Manual Email & Password login with secure session cookie handling.
-   - Two-Factor Google OAuth login: Identity token verification followed by a 5-minute cryptographically secure Email OTP.
-   - Resident Dashboard with live complaint statistics queried from SQL Server.
-   - New Complaint submission form with:
-     - Department and category selection.
-     - Interactive Leaflet OpenStreetMap with draggable pin, GPS geolocation, and reverse geocoding.
-     - Multipart evidence upload (JPG, PNG, WEBP, PDF up to 5MB) with image preview.
-   - Searchable, filterable complaint history with status badges and timeline tracking.
-   - Complaint details view with interactive location map, secure evidence gallery, status timeline, and 5-star citizen satisfaction rating review.
-   - Citizen profile and secure logout.
-
-2. **`backend/` (Express REST API - Port 3000)**
-   - Exclusive gateway to Microsoft SQL Server using Windows Integrated Authentication (`msnodesqlv8`).
-   - Secure REST endpoints (`/api/auth`, `/api/complaints`, `/api/staff`, `/api/admin`, `/api/departments`, `/api/diagnostics`).
-   - Argon2id / bcrypt password hashing (cost factor 12).
-   - Session storage in `dbo.Auth_Session` with SHA-256 token hashing and httpOnly Lax cookies.
-   - Cryptographic 6-digit OTP generator with SHA-256 hash storage in `dbo.Auth_OTP`, 5-minute expiration, and SMTP email dispatch.
-   - Multipart file upload handling with disk storage in `backend/uploads/`, UUID sanitization, MIME-type verification, and access-controlled streaming endpoints.
-   - Transaction-safe complaint assignment, status transitions, and `dbo.Staff.active_cases` workload constraint tracking.
-   - Structured audit logging to `dbo.Audit_Log`.
-   - Comprehensive automated integration test suite (`npm test`).
-
-3. **`staff/` (Field Staff Portal - Port 5174)**
-   - Officer authentication with individual staff credentials and role verification.
-   - Staff Dashboard displaying officer's active case workload bar against the database constraint (`BETWEEN 0 AND 5`).
-   - Assigned complaints table with status filtering and citizen contact details.
-   - Case Review page with citizen details, incident coordinates on Leaflet map, and evidence preview.
-   - Status Update action modal: transitions case to `In Progress`, `Resolved`, or `Rejected` with mandatory inspector remarks and history recording.
-
-4. **`admin/` (Administrator Command Center - Port 5175)**
-   - Secure administrator login with administrative role gating.
-   - Live system-wide metrics queried directly from SQL Server: Total complaints, Pending, In Progress, Resolved, Rejected, Citizens, Staff, Average satisfaction rating.
-   - Department grievance distribution and resolution rate analytics.
-   - Staff capacity utilization monitor.
-   - City-wide complaints registry with department and status filters, and one-click "Assign Staff" modal that checks department compatibility and officer capacity (`active_cases < 5`).
-   - Staff directory with active/deactivated toggling and "Add New Staff Member" provisioning modal.
-   - Registered citizens registry.
-   - Department management.
-   - Citizen review reports.
-   - Live SQL Server `dbo.Audit_Log` audit trail viewer.
 
 ---
 
-## 2. Getting Started & Running the Platform
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v18+)
-- Microsoft SQL Server with Windows Authentication enabled
-- ODBC Driver 18 for SQL Server (or ODBC Driver 17)
-- Database named `CityWatch` with base schema loaded
 
-### Running the Applications
+- **Python 3.10+** (Tested on Python 3.12)
+- **pip** (Python package manager)
+- *(Optional)* Microsoft SQL Server & ODBC Driver 17 or 18 for SQL Server (when database connection is approved)
 
-#### Option A: Run All Concurrently (Recommended)
-You can open 4 separate terminal windows or run each service from the project root:
+> **Note:** Node.js, npm, Vite, and React are **not required**.
 
-```bash
-# Terminal 1: Start Backend API (Port 3000)
-npm run dev:backend
+### Installation
 
-# Terminal 2: Start Citizen Portal (Port 5173)
-npm run dev:frontend
+1. **Clone or open the repository:**
+   ```powershell
+   cd e:\Work\Project\CityWatch
+   ```
 
-# Terminal 3: Start Field Staff Portal (Port 5174)
-npm run dev:staff
+2. **Create and activate a Python virtual environment:**
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   ```
 
-# Terminal 4: Start Administrator Portal (Port 5175)
-npm run dev:admin
+3. **Install dependencies:**
+   ```powershell
+   pip install -r requirements.txt
+   ```
+
+### Running the Application
+
+Start the unified server with a single command:
+
+```powershell
+python run.py
 ```
 
-#### Option B: Run Independent Directories
-Each folder has its own self-contained package configuration:
-
-```bash
-# Backend
-cd backend
-node server.js
-
-# Citizen Frontend
-cd frontend
-npm run dev
-
-# Staff Frontend
-cd staff
-npm run dev
-
-# Admin Frontend
-cd admin
-npm run dev
-```
+Open your browser to:
+- **Citizen Portal:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- **Staff Portal:** [http://127.0.0.1:8000/staff/login](http://127.0.0.1:8000/staff/login)
+- **Admin Portal:** [http://127.0.0.1:8000/admin/login](http://127.0.0.1:8000/admin/login)
+- **System Health:** [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)
 
 ---
 
-## 3. Database Migrations & Pre-Seeded Accounts
+## 🔑 Login Workflow & Credentials
 
-### Safe Migrations
-The database migration script `backend/src/migrations/migrate.js` is idempotent and non-destructive:
-- Verifies or creates `dbo.Complaint_Attachment` for file uploads.
-- Verifies or creates `dbo.Auth_OTP` for two-factor Google email verification.
-- Provisions initial accounts with individual secure passwords.
+### A. Local Development Demo Mode (Offline / Default)
 
-Run the migration and seeding at any time:
-```bash
-npm run migrate
-```
+When `DB_ENABLED=false`, CityWatch provides clearly labelled demo accounts loaded strictly through a local development-only configuration. **These accounts are never saved to SQL Server or presented as real database records.**
 
-### Pre-Configured Test Credentials
+#### 1. Field Staff Portal (`http://127.0.0.1:8000/staff/login`)
 
-| Role | Email | Password | Access Portal |
+Staff members must select their **Assigned Department** and provide their Staff ID or Email:
+
+| Department in Dropdown | Staff ID | Email | Password | Assigned Officer |
+| :--- | :--- | :--- | :--- | :--- |
+| **[Demo] Sanitation Department** | `1` | `ahmed.staff@example.com` | `StaffPass123!` | Ahmed Khan |
+| **[Demo] Roads & Infrastructure** | `2` | `usman.staff@example.com` | `StaffPass123!` | Usman Tariq |
+| **[Demo] Water Supply & Sewerage** | `3` | `hassan.staff@example.com` | `StaffPass123!` | Hassan Raza |
+| **[Demo] Electricity & Public Lighting** | `4` | `bilal.staff@example.com` | `StaffPass123!` | Bilal Farooq |
+
+> **Department Validation Rule:** If Ahmed Khan (`staff_id: 1`) selects "Roads & Infrastructure", the login is rejected with `"Invalid credentials or department selection."` Cross-department access is strictly prohibited.
+
+#### 2. Administrator Command Center (`http://127.0.0.1:8000/admin/login`)
+
+| Role | Email | Password | Access Level |
 | :--- | :--- | :--- | :--- |
-| **Administrator** | `admin@citywatch.gov` | `AdminPass123!` | [http://localhost:5175](http://localhost:5175) |
-| **Sanitation Staff** | `ahmed.staff@example.com` | `StaffPass123!` | [http://localhost:5174](http://localhost:5174) |
-| **Roads Staff** | `usman.staff@example.com` | `StaffPass123!` | [http://localhost:5174](http://localhost:5174) |
-| **Water Staff** | `hassan.staff@example.com` | `StaffPass123!` | [http://localhost:5174](http://localhost:5174) |
-| **Electricity Staff** | `bilal.staff@example.com` | `StaffPass123!` | [http://localhost:5174](http://localhost:5174) |
-| **Demo Citizen** | `ali.ahmed@example.com` | `Citizen123!` | [http://localhost:5173](http://localhost:5173) |
-| **New Citizen** | Register directly via registration form | [http://localhost:5173](http://localhost:5173) |
+| **Administrator** | `admin@citywatch.gov` | `AdminPass123!` | Full municipal command oversight |
+
+> **Role Separation:** Staff accounts cannot log into the Admin portal. There is no public registration page for Admin accounts.
+
+#### 3. Citizen Portal (`http://127.0.0.1:8000/login`)
+
+| Role | Email | Password | Registration |
+| :--- | :--- | :--- | :--- |
+| **Citizen (Demo)** | `ali.ahmed@example.com` | `Citizen123!` | Pre-configured demo citizen |
+| **New Citizen** | Self-registered | User-defined | Accessible at `/register` when DB enabled |
 
 ---
 
-## 4. Configuration & Environment Variables
+### B. Real Database Accounts & Provisioning (Production / SQL Server)
 
-Copy `.env.example` to `.env` in the project root and in `backend/.env`.
+When database access is approved and `DB_ENABLED=true`, real accounts are stored in `dbo.Staff` and `dbo.Auth_Account`.
+
+#### Creating the First Administrator Account
+To securely provision the initial administrator without exposing credentials in code, shell history, or Git:
+
+```powershell
+python scripts/manage_accounts.py create-admin
+```
+The CLI tool prompts for:
+1. Administrator Full Name
+2. Official Email Address
+3. Contact Phone Number
+4. Designation (defaults to *Chief Administrative Officer*)
+5. Password (entered securely with **masked input** via `getpass`, minimum 8 characters with complexity verification)
+
+The tool hashes the password using **bcrypt** (cost factor 12) with a unique cryptographic salt and inserts the records into `dbo.Staff` and `dbo.Auth_Account` with `role_name='Admin'`.
+
+#### Creating Staff Accounts
+Staff accounts can be created either:
+1. **Via CLI:**
+   ```powershell
+   python scripts/manage_accounts.py create-staff
+   ```
+2. **Via Administrator Portal:** Log in as an Administrator, navigate to **Staff Management** (`/admin/staff`), and fill out the "Provision New Staff Member" form.
+
+#### Listing Registered Accounts
+To view all accounts without exposing passwords or hashes:
+```powershell
+python scripts/manage_accounts.py list
+```
+
+---
+
+## 🧪 Running the Test Suite
+
+Run all 65 automated unit and regression tests with `pytest`:
+
+```powershell
+pytest -v
+```
+
+Output:
+```text
+============================= test session starts =============================
+collected 65 items
+
+python_app/tests/test_auth_and_session.py .........                      [ 13%]
+python_app/tests/test_authenticated_pages.py ........                    [ 26%]
+python_app/tests/test_forms_and_validation.py ........                   [ 38%]
+python_app/tests/test_mock_driver_workflows.py .....                     [ 46%]
+python_app/tests/test_privacy_and_authorization.py ..                    [ 49%]
+python_app/tests/test_routes_render.py ..............                    [ 70%]
+python_app/tests/test_staff_and_admin_auth.py ...................        [100%]
+
+======================== 65 passed, 1 warning in 4.84s ========================
+```
+
+---
+
+## ⚙️ Environment Configuration
+
+Configuration is managed via `.env` (configured for live Microsoft SQL Server connectivity):
 
 ```env
-# Database Connection (Windows Integrated Authentication)
-DB_SERVER=DESKTOP-QDJFKS0\SQLEXPRESS
+# Server
+PORT=8000
+HOST=127.0.0.1
+ENVIRONMENT=development
+DEBUG=true
+
+# Session Security
+SECRET_KEY=change-this-secret-key-to-a-random-32-char-string-in-production
+
+# Offline Development & Demo Mode (Set false for live DB operations)
+DEMO_MODE=false
+
+# Database Settings (Microsoft SQL Server)
+DB_ENABLED=true
+DB_SERVER=.\SQLEXPRESS
 DB_DATABASE=CityWatch
-DB_PORT=
+DB_AUTH=windows
 DB_ODBC_DRIVER=ODBC Driver 18 for SQL Server
 DB_TRUST_SERVER_CERTIFICATE=true
-
-# Server
-PORT=3000
-NODE_ENV=development
-
-# Google OAuth 2.0 (Optional - for Google Identity verification)
-GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-
-# SMTP Email Configuration (Optional - for Email OTP dispatch)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-SMTP_FROM=CityWatch Civic Support <noreply@citywatch.gov>
+DB_ENCRYPT=true
 ```
 
-> **Note on Google OAuth and Email OTP:**
-> If `GOOGLE_CLIENT_ID` or SMTP credentials are omitted, manual email/password registration and login remain 100% functional. When Google sign-in is invoked without credentials, the system informs the user that configuration parameters must be supplied in `.env`.
+> **Live Database Status:** `DB_ENABLED=true` connects directly to the local Microsoft SQL Server `CityWatch` database instance via Windows Authentication. All panels (Citizen, Staff, Admin) persist and query real database records in `dbo.Citizen`, `dbo.Staff`, `dbo.Department`, `dbo.Complaint`, `dbo.Location`, `dbo.Feedback`, and `dbo.Audit_Log`. If SQL Server is stopped or offline, setting `DB_ENABLED=false` safely falls back to local demo mode.
 
 ---
 
-## 5. Automated Integration Test Suite
+## 📚 Documentation Reference
 
-CityWatch includes a comprehensive test suite in `backend/src/tests/run_tests.js` verifying database connectivity, registration, password hashing, manual login, staff/admin authentication, authorization barriers, complaint creation with coordinates, assignment, and status updates:
-
-```bash
-npm test
-```
-
-### Verified Test Results
-- ✓ `Diagnostic endpoint verifies SQL Server connection`
-- ✓ `Registration rejects weak passwords and invalid email formats`
-- ✓ `Citizen registration succeeds and persists in SQL Server`
-- ✓ `Citizen manual login succeeds with registered credentials`
-- ✓ `Citizen manual login rejects incorrect password`
-- ✓ `Staff authentication succeeds for municipal staff account`
-- ✓ `Admin authentication succeeds for administrator account`
-- ✓ `Citizen is blocked with 403 when requesting Admin dashboard`
-- ✓ `Staff is blocked with 403 when requesting Admin dashboard`
-- ✓ `Admin successfully retrieves system-wide metrics from SQL Server`
-- ✓ `Citizen creates complaint with location coordinates`
-- ✓ `Citizen retrieves complaint details with timeline history`
-- ✓ `Admin assigns complaint to authorized staff member`
-- ✓ `Assigned staff updates complaint status to In Progress with remarks`
-- ✓ `Citizen submits rating and feedback on complaint`
-
-**Total: 15 Passed, 0 Failed.**
+- **[Python Migration Plan & Checklist](docs/python-migration-plan.md)**: Detailed page-by-page feature parity matrix, audit logs, and phased migration records.
+- **[Presentation Guide & Viva Q&A](docs/presentation-guide.md)**: Step-by-step viva demo sequence, architectural justifications, and technical interview questions with model answers.
