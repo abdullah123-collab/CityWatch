@@ -1,0 +1,171 @@
+{% extends "citizen/base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<section style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: #ffffff; padding: 80px 0 90px; text-align: center;">
+  <div class="container-narrow">
+    <div style="display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:9999px; background:rgba(255,255,255,0.12); font-size:0.85rem; font-weight:600; margin-bottom:20px;">
+      🛡️ <span>Official Municipal Civic Grievance System</span>
+    </div>
+
+    <h1 style="font-size:3.2rem; font-weight:800; letter-spacing:-0.03em; line-height:1.15; margin-bottom:20px;">
+      Report an issue.<br />
+      <span style="color:#93c5fd;">See real progress.</span>
+    </h1>
+
+    <p style="font-size:1.2rem; color:#cbd5e1; max-width:650px; margin:0 auto 36px; line-height:1.6;">
+      CityWatch directly connects residents with municipal departments. Pinpoint issues, attach evidence, and track every stage until resolution.
+    </p>
+
+    <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+      {% if user %}
+        <a href="/complaints/new" class="btn" style="padding:14px 28px; font-size:1.05rem; background-color:#2563eb; color:#fff; border:none;">
+          Report a Civic Issue →
+        </a>
+        <a href="/complaints" class="btn" style="padding:14px 28px; font-size:1.05rem; background-color:transparent; color:#ffffff; border:1px solid rgba(255,255,255,0.3);">
+          Track My Reports
+        </a>
+      {% else %}
+        <a href="/login" class="btn" style="padding:14px 28px; font-size:1.05rem; background-color:#2563eb; color:#fff; border:none;">
+          Report a Civic Issue →
+        </a>
+        <a href="/complaints" class="btn" style="padding:14px 28px; font-size:1.05rem; background-color:transparent; color:#ffffff; border:1px solid rgba(255,255,255,0.3);">
+          Track My Reports
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS / FEATURES -->
+<section style="padding:70px 0; background-color:#ffffff; border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:48px;">
+      <span style="color:var(--primary); font-weight:700; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Transparent Governance</span>
+      <h2 style="font-size:2.2rem; font-weight:800; margin-top:4px;">3 Reasons Citizens Choose CityWatch</h2>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:32px;">
+      <!-- Card 1 -->
+      <div class="card" style="padding:32px; margin-bottom:0;">
+        <div style="width:50px; height:50px; border-radius:12px; background:var(--primary-light); color:var(--primary); display:grid; place-items:center; font-weight:800; font-size:1.2rem; margin-bottom:20px;">
+          01
+        </div>
+        <h3 style="font-size:1.25rem; font-weight:700; margin-bottom:10px;">Direct Department Routing</h3>
+        <p style="color:var(--text-muted); font-size:0.95rem;">
+          Your complaint is immediately logged and routed to the authorized municipal inspectors based on department and area jurisdiction — no middlemen, no delays.
+        </p>
+      </div>
+      <!-- Card 2 -->
+      <div class="card" style="padding:32px; margin-bottom:0;">
+        <div style="width:50px; height:50px; border-radius:12px; background:var(--primary-light); color:var(--primary); display:grid; place-items:center; font-weight:800; font-size:1.2rem; margin-bottom:20px;">
+          02
+        </div>
+        <h3 style="font-size:1.25rem; font-weight:700; margin-bottom:10px;">Real-Time Status Tracking</h3>
+        <p style="color:var(--text-muted); font-size:0.95rem;">
+          Follow real-time status transitions on your complaint timeline — from submission to in-progress field inspection to final resolution with officer remarks.
+        </p>
+      </div>
+      <!-- Card 3 -->
+      <div class="card" style="padding:32px; margin-bottom:0;">
+        <div style="width:50px; height:50px; border-radius:12px; background:var(--primary-light); color:var(--primary); display:grid; place-items:center; font-weight:800; font-size:1.2rem; margin-bottom:20px;">
+          03
+        </div>
+        <h3 style="font-size:1.25rem; font-weight:700; margin-bottom:10px;">Transparent Resolution</h3>
+        <p style="color:var(--text-muted); font-size:0.95rem;">
+          Once resolved, rate your service satisfaction. Your feedback is recorded in the municipal database and used to improve civic service quality.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEPARTMENTS SHOWCASE -->
+<section style="padding:70px 0; background-color:var(--bg-page);">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:40px;">
+      <span style="color:var(--primary); font-weight:700; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Connected Municipal Services</span>
+      <h2 style="font-size:2.2rem; font-weight:800; margin-top:4px;">Responsible Departments</h2>
+    </div>
+
+    {% if departments %}
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px;">
+      {% for dept in departments %}
+      <div class="card" style="margin-bottom:0; padding:24px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:44px; height:44px; border-radius:var(--radius); background:var(--primary-light); color:var(--primary); display:grid; place-items:center; font-size:1.3rem;">
+            🏢
+          </div>
+          <div>
+            <h4 style="font-weight:700; font-size:1.05rem;">{{ dept.dept_name }}</h4>
+            <span style="font-size:0.8rem; color:var(--text-muted);">{{ dept.category }}</span>
+          </div>
+        </div>
+        <div style="font-size:0.85rem; color:#475569; margin-top:8px;">
+          <p><strong>Head Officer:</strong> {{ dept.head_officer or 'Municipal Officer' }}</p>
+          <p style="margin-top:4px;"><strong>Helpline:</strong> {{ dept.contact_phone or 'Call 311' }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="text-align:center; color:var(--text-muted);">Department information will be available once the database is connected.</p>
+    {% endif %}
+  </div>
+</section>
+
+<!-- STATS SECTION -->
+<section style="padding:60px 0; background-color:#ffffff; border-top:1px solid var(--border);">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:40px;">
+      <span style="color:var(--primary); font-weight:700; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">By The Numbers</span>
+      <h2 style="font-size:2.2rem; font-weight:800; margin-top:4px;">4 Statistics About CityWatch</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:24px; text-align:center;">
+      <div>
+        <div style="font-size:2.8rem; font-weight:800; color:var(--primary);">100%</div>
+        <div style="color:var(--text-muted); font-size:0.9rem; margin-top:4px;">Complaints Tracked</div>
+      </div>
+      <div>
+        <div style="font-size:2.8rem; font-weight:800; color:var(--primary);">24h</div>
+        <div style="color:var(--text-muted); font-size:0.9rem; margin-top:4px;">Avg. Assignment Time</div>
+      </div>
+      <div>
+        <div style="font-size:2.8rem; font-weight:800; color:var(--primary);">SQL</div>
+        <div style="color:var(--text-muted); font-size:0.9rem; margin-top:4px;">Server Secured</div>
+      </div>
+      <div>
+        <div style="font-size:2.8rem; font-weight:800; color:var(--primary);">ACID</div>
+        <div style="color:var(--text-muted); font-size:0.9rem; margin-top:4px;">Transaction Integrity</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING CTA -->
+<section style="padding:70px 0; background:linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); text-align:center;">
+  <div class="container-narrow">
+    <h2 style="font-size:2.4rem; font-weight:800; color:#ffffff; margin-bottom:16px;">
+      Ready to report an issue?
+    </h2>
+    <p style="color:#cbd5e1; font-size:1.1rem; margin-bottom:32px;">
+      Join thousands of citizens making their city better, one report at a time.
+    </p>
+    <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+      {% if user %}
+      <a href="/complaints/new" class="btn" style="padding:14px 28px; font-size:1.05rem; background:#2563eb; color:#fff; border:none;">
+        Submit a Report →
+      </a>
+      {% else %}
+      <a href="/register" class="btn" style="padding:14px 28px; font-size:1.05rem; background:#2563eb; color:#fff; border:none;">
+        Create Resident Account →
+      </a>
+      <a href="/login" class="btn" style="padding:14px 28px; font-size:1.05rem; background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.3);">
+        Sign In
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

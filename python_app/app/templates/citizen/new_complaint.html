@@ -1,0 +1,183 @@
+{% extends "citizen/base.html" %}
+{% block title %}Report New Issue{% endblock %}
+
+{% block content %}
+<div class="container-narrow" style="padding: 40px 24px;">
+
+  <div style="margin-bottom: 24px;">
+    <a href="/dashboard" class="btn btn-outline btn-sm" style="margin-bottom: 12px; display: inline-flex; align-items: center; gap: 6px;">
+      ← Back to Dashboard
+    </a>
+    <span style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em;">
+      Civic Grievance Registration
+    </span>
+    <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
+      Report a Municipal Issue
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Submit detailed issue information and verified address details directly to the municipal jurisdiction.
+    </p>
+  </div>
+
+  {% if not db_enabled %}
+  <div class="alert alert-info">
+    ℹ️ <strong>Database not yet connected.</strong> Submission requires SQL Server access.
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="alert alert-danger">⚠️ {{ error }}</div>
+  {% endif %}
+
+  <div class="card" style="padding: 32px;">
+    <form id="complaintForm" method="post" action="/complaints/new" enctype="multipart/form-data">
+
+      <!-- ISSUE CLASSIFICATION -->
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+        1. Grievance Classification
+      </h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Responsible Department *</label>
+          <select id="deptSelect" name="dept_id" class="form-control" required>
+            {% for d in departments %}
+            <option value="{{ d.dept_id }}" data-category="{{ d.category }}">{{ d.dept_name }} ({{ d.category }})</option>
+            {% else %}
+            <option value="1" data-category="Public Works">Public Works Department</option>
+            <option value="2" data-category="Sanitation">Sanitation &amp; Waste Management</option>
+            <option value="3" data-category="Water Supply">Water Supply &amp; Sewerage</option>
+            <option value="4" data-category="Electrical">Street Lighting &amp; Electrical</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Category *</label>
+          <input type="text" id="categoryInput" name="category" class="form-control" placeholder="e.g. Road Repair, Streetlight" required />
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Complaint Title *</label>
+          <input type="text" name="title" class="form-control" placeholder="Brief summary of the issue (e.g. Deep pothole near sector park)" required maxlength="200" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Priority Level</label>
+          <select name="priority" class="form-control">
+            <option value="Low">Low</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="High">High</option>
+            <option value="Critical">Critical</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 28px;">
+        <label class="form-label">Detailed Description *</label>
+        <textarea name="description" class="form-control" rows="4" placeholder="Describe the problem, hazard level, landmark references, or how long the issue has persisted." required></textarea>
+      </div>
+
+      <!-- INCIDENT LOCATION (MANUAL ADDRESS FIELDS) -->
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+        2. Incident Location (Manual Address)
+      </h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 16px;">
+        Please specify the exact street address or landmark location where the incident occurred.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Area / Locality / Street *</label>
+          <input type="text" name="area_name" class="form-control" placeholder="e.g. Sector G-8/1, Street 14" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">City *</label>
+          <input type="text" name="city" class="form-control" placeholder="e.g. Metropolis" required />
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">District *</label>
+          <input type="text" name="district" class="form-control" placeholder="e.g. Capital District" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Postal Code / Pincode *</label>
+          <input type="text" name="pincode" class="form-control" placeholder="e.g. 44000" required />
+        </div>
+      </div>
+
+      <!-- EVIDENCE & ATTACHMENTS -->
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+        3. Evidence &amp; Attachments (Optional)
+      </h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px;">
+        Upload photos or documents supporting this complaint (max 5 files, 5MB each). Allowed: JPG, PNG, WEBP, GIF, PDF.
+      </p>
+
+      <div class="evidence-dropzone" style="border: 2px dashed var(--border); border-radius: var(--radius); padding: 24px; text-align: center; background: #f8fafc; cursor: pointer; margin-bottom: 16px;" onclick="document.getElementById('fileInput').click()">
+        <div style="font-size: 2rem; margin-bottom: 6px;">📁</div>
+        <p style="font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Click to select photos or documents</p>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">PNG, JPG, WEBP, or PDF (up to 5MB per file)</span>
+        <input type="file" id="fileInput" name="attachments" multiple accept=".jpg,.jpeg,.png,.webp,.gif,.pdf" style="display: none;" onchange="handleFileChange(this)" />
+      </div>
+
+      <div id="filePreviewContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px;"></div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border); padding-top: 20px;">
+        <a href="/dashboard" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="padding: 12px 28px;">
+          Submit Complaint to Municipality
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+  // Auto-sync category from department selection
+  const deptSelect = document.getElementById('deptSelect');
+  const catInput = document.getElementById('categoryInput');
+
+  function updateCategory() {
+    if (!deptSelect || !catInput) return;
+    const opt = deptSelect.options[deptSelect.selectedIndex];
+    if (opt && opt.dataset.category) {
+      catInput.value = opt.dataset.category;
+    }
+  }
+
+  if (deptSelect) {
+    deptSelect.addEventListener('change', updateCategory);
+    updateCategory();
+  }
+
+  // File preview handling
+  function handleFileChange(input) {
+    const container = document.getElementById('filePreviewContainer');
+    container.innerHTML = '';
+    const files = Array.from(input.files || []);
+
+    if (files.length > 5) {
+      alert('You can upload a maximum of 5 files.');
+      input.value = '';
+      return;
+    }
+
+    files.forEach((file) => {
+      const card = document.createElement('div');
+      card.style.cssText = 'border:1px solid var(--border);border-radius:6px;padding:8px;background:#fff;text-align:center;font-size:0.75rem;';
+      const isImg = file.type.startsWith('image/');
+      let iconOrImg = isImg ? `<img src="${URL.createObjectURL(file)}" style="width:100%;height:70px;object-fit:cover;border-radius:4px;margin-bottom:4px;" />` : `<div style="height:70px;display:grid;place-items:center;background:#f1f5f9;font-size:1.8rem;border-radius:4px;margin-bottom:4px;">📄</div>`;
+      card.innerHTML = `${iconOrImg}<div style="font-weight:600;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">${file.name}</div><div style="color:var(--text-muted);">${(file.size / (1024*1024)).toFixed(2)} MB</div>`;
+      container.appendChild(card);
+    });
+  }
+</script>
+{% endblock %}

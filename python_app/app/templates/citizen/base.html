@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}CityWatch{% endblock %} — Municipal Civic Grievance System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/citizen.css" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="app-container">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container navbar-inner">
+      <a href="/" class="brand">
+        <div class="brand-icon">C</div>
+        CityWatch
+      </a>
+      <div class="nav-links">
+        {% if user %}
+          <a href="/dashboard" class="nav-link {% if request.url.path == '/dashboard' %}active{% endif %}">
+            Dashboard
+          </a>
+          <a href="/complaints" class="nav-link {% if request.url.path.startswith('/complaints') %}active{% endif %}">
+            My Reports
+          </a>
+          <a href="/profile" class="nav-link {% if request.url.path == '/profile' %}active{% endif %}">
+            Profile
+          </a>
+          <form method="post" action="/logout" style="display:inline">
+            <button type="submit" class="btn btn-outline btn-sm">Sign Out</button>
+          </form>
+        {% else %}
+          <a href="/login" class="btn btn-outline btn-sm">Sign In</a>
+          <a href="/register" class="btn btn-primary btn-sm">Register</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>© 2026 CityWatch Municipal Platform</span>
+      <span style="font-size:0.82rem; color:var(--text-muted)">
+        SQL Server Integrated · ACID Transactions · Role-Based Access
+      </span>
+      <div style="display:flex;gap:16px;font-size:0.85rem">
+        <a href="/staff/login">Staff Portal</a>
+        <a href="/admin/login">Admin Portal</a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

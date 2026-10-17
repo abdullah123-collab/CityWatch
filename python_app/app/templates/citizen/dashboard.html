@@ -1,0 +1,140 @@
+{% extends "citizen/base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+{% set status_class = {'Pending': 'badge-pending', 'In Progress': 'badge-in-progress', 'Resolved': 'badge-resolved', 'Rejected': 'badge-rejected'} %}
+{% set priority_class = {'Low': 'badge-low', 'Medium': 'badge-medium', 'High': 'badge-high', 'Critical': 'badge-critical'} %}
+
+<div class="container" style="padding:40px 24px;">
+
+  {% if not db_enabled %}
+  <div class="alert alert-info">
+    ℹ️ <strong>Database not yet connected.</strong> Demo mode is active — no live data is being displayed.
+  </div>
+  {% endif %}
+
+  {% if db_error %}
+  <div class="alert alert-danger">⚠️ {{ db_error }}</div>
+  {% endif %}
+
+  <!-- WELCOME BANNER -->
+  <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:32px;">
+    <div>
+      <span style="font-size:0.88rem; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:0.04em;">
+        Citizen Dashboard
+      </span>
+      <h1 style="font-size:2rem; font-weight:800; color:var(--text-main); margin-top:2px;">
+        Welcome back, {{ user.full_name if user else 'Resident' }}
+      </h1>
+      <p style="color:var(--text-muted); font-size:0.95rem;">
+        Overview of your reported civic issues and active municipality resolutions.
+      </p>
+    </div>
+    <a href="/complaints/new" class="btn btn-primary" style="padding:12px 20px;">
+      ＋ Report New Issue
+    </a>
+  </div>
+
+  <!-- STATS GRID -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-info">
+        <span>Total Reported</span>
+        <h3>{{ stats.total if stats else 0 }}</h3>
+      </div>
+      <div class="stat-icon" style="background:#eff6ff; color:#2563eb;">📄</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-info">
+        <span>Pending Review</span>
+        <h3>{{ stats.pending if stats else 0 }}</h3>
+      </div>
+      <div class="stat-icon" style="background:#fef3c7; color:#b45309;">🕐</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-info">
+        <span>In Progress</span>
+        <h3>{{ stats.in_progress if stats else 0 }}</h3>
+      </div>
+      <div class="stat-icon" style="background:#e0f2fe; color:#0369a1;">⚙️</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-info">
+        <span>Resolved</span>
+        <h3>{{ stats.resolved if stats else 0 }}</h3>
+      </div>
+      <div class="stat-icon" style="background:#dcfce7; color:#15803d;">✅</div>
+    </div>
+  </div>
+
+  <!-- RECENT COMPLAINTS TABLE -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Recent Submissions</h2>
+      <a href="/complaints" style="font-size:0.9rem; font-weight:600; display:flex; align-items:center; gap:4px;">
+        View All Reports →
+      </a>
+    </div>
+
+    {% if complaints %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title &amp; Category</th>
+            <th>Department</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in complaints[:5] %}
+          <tr>
+            <td><strong>#{{ c.complaint_id }}</strong></td>
+            <td>
+              <div style="font-weight:700;">{{ c.title }}</div>
+              <span style="font-size:0.8rem; color:var(--text-muted);">{{ c.category }}</span>
+            </td>
+            <td>{{ c.department or '—' }}</td>
+            <td>
+              <span class="badge {{ priority_class.get(c.priority, 'badge-medium') }}">
+                {{ c.priority }}
+              </span>
+            </td>
+            <td>
+              <span class="badge {{ status_class.get(c.status, 'badge-pending') }}">
+                {{ c.status }}
+              </span>
+            </td>
+            <td style="font-size:0.85rem; color:var(--text-muted);">
+              {{ c.submitted_at | string | truncate(10, true, '') }}
+            </td>
+            <td>
+              <a href="/complaints/{{ c.complaint_id }}" class="btn btn-outline btn-sm">
+                View Details
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:48px 20px; color:var(--text-muted);">
+      <div style="font-size:2.5rem; margin-bottom:12px; opacity:0.4;">📄</div>
+      <p style="font-weight:600;">No complaints submitted yet.</p>
+      <p style="font-size:0.88rem; margin-top:4px;">
+        Notice a pothole, streetlight failure, or waste overflow? Submit a report now.
+      </p>
+      <a href="/complaints/new" class="btn btn-primary btn-sm" style="margin-top:16px;">
+        Report Your First Issue
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

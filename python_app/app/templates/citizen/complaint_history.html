@@ -1,0 +1,144 @@
+{% extends "citizen/base.html" %}
+{% block title %}My Reports History{% endblock %}
+
+{% block content %}
+{% set status_class = {'Pending': 'badge-pending', 'In Progress': 'badge-in-progress', 'Resolved': 'badge-resolved', 'Rejected': 'badge-rejected'} %}
+{% set priority_class = {'Low': 'badge-low', 'Medium': 'badge-medium', 'High': 'badge-high', 'Critical': 'badge-critical'} %}
+
+<div class="container" style="padding: 40px 24px;">
+  {% if not db_enabled %}
+  <div class="alert alert-info">
+    ℹ️ <strong>Database not yet connected.</strong> Demo mode is active — no live complaint records are loaded.
+  </div>
+  {% endif %}
+
+  {% if db_error %}
+  <div class="alert alert-danger">⚠️ {{ db_error }}</div>
+  {% endif %}
+
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 28px;">
+    <div>
+      <span style="font-size: 0.85rem; fontWeight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em;">
+        Records &amp; Grievances
+      </span>
+      <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
+        My Complaints History
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Search, filter, and track status updates across all your submitted civic reports.
+      </p>
+    </div>
+
+    <a href="/complaints/new" class="btn btn-primary" style="padding: 12px 20px;">
+      ＋ Report New Issue
+    </a>
+  </div>
+
+  <!-- FILTER CONTROLS -->
+  <div class="card" style="padding: 20px; margin-bottom: 24px;">
+    <form method="get" action="/complaints" style="display: flex; gap: 14px; flex-wrap: wrap;">
+      <div style="flex: 1 1 260px; position: relative;">
+        <input
+          type="text"
+          name="search"
+          class="form-control"
+          placeholder="Search by title, description or category…"
+          value="{{ filters.search or '' }}"
+        />
+      </div>
+
+      <div style="width: 180px;">
+        <select name="status_filter" class="form-control">
+          <option value="">All Statuses</option>
+          <option value="Pending" {% if filters.status == 'Pending' %}selected{% endif %}>Pending</option>
+          <option value="In Progress" {% if filters.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+          <option value="Resolved" {% if filters.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+          <option value="Rejected" {% if filters.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+      </div>
+
+      <div style="width: 160px;">
+        <select name="priority" class="form-control">
+          <option value="">All Priorities</option>
+          <option value="Low" {% if filters.priority == 'Low' %}selected{% endif %}>Low</option>
+          <option value="Medium" {% if filters.priority == 'Medium' %}selected{% endif %}>Medium</option>
+          <option value="High" {% if filters.priority == 'High' %}selected{% endif %}>High</option>
+          <option value="Critical" {% if filters.priority == 'Critical' %}selected{% endif %}>Critical</option>
+        </select>
+      </div>
+
+      <div style="width: 160px;">
+        <select name="sort" class="form-control">
+          <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest First</option>
+          <option value="oldest" {% if filters.sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-sm" style="padding: 0 20px;">
+        Filter
+      </button>
+      <a href="/complaints" class="btn btn-outline btn-sm" style="display: flex; align-items: center;">
+        Reset
+      </a>
+    </form>
+  </div>
+
+  <!-- COMPLAINTS LIST -->
+  {% if complaints %}
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+    {% for c in complaints %}
+    <div class="card" style="padding: 24px; margin-bottom: 0;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+            <span style="font-weight: 800; color: var(--primary);">#{{ c.complaint_id }}</span>
+            <span class="badge {{ status_class.get(c.status, 'badge-pending') }}">{{ c.status }}</span>
+            <span class="badge {{ priority_class.get(c.priority, 'badge-medium') }}">{{ c.priority }}</span>
+          </div>
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">
+            <a href="/complaints/{{ c.complaint_id }}">{{ c.title }}</a>
+          </h2>
+        </div>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">
+          Logged: {{ c.submitted_at | string | truncate(16, true, '') }}
+        </span>
+      </div>
+
+      <p style="color: #475569; font-size: 0.95rem; margin-bottom: 16px; line-height: 1.5;">
+        {{ c.description | truncate(180, true, '…') }}
+      </p>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-top: 1px solid var(--border); padding-top: 14px; font-size: 0.85rem; color: var(--text-muted);">
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+          <span>🏢 {{ c.department or 'General' }}</span>
+          <span>📍 {{ [c.area_name, c.city]|select|join(', ') or 'Jurisdiction recorded' }}</span>
+          {% if c.attachment_count and c.attachment_count > 0 %}
+          <span>📎 {{ c.attachment_count }} attachment(s)</span>
+          {% endif %}
+        </div>
+        <a href="/complaints/{{ c.complaint_id }}" class="btn btn-outline btn-sm">
+          View Full Case Details →
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="text-align: center; padding: 50px 20px; color: var(--text-muted);">
+    <div style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4;">📋</div>
+    <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);">No complaints found</h3>
+    <p style="font-size: 0.9rem; margin-top: 4px;">
+      {% if filters.search or filters.status or filters.priority %}
+      Try adjusting your search filters or click Reset.
+      {% else %}
+      You have not submitted any complaints yet.
+      {% endif %}
+    </p>
+    <a href="/complaints/new" class="btn btn-primary btn-sm" style="margin-top: 16px;">
+      Report an Issue
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

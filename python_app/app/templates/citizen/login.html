@@ -1,0 +1,87 @@
+{% extends "citizen/base.html" %}
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<div class="container" style="padding:60px 24px; display:flex; justify-content:center;">
+  <div style="width:100%; max-width:480px;">
+
+    <!-- CARD -->
+    <div class="card" style="padding:40px;">
+      <div style="text-align:center; margin-bottom:28px;">
+        <div style="font-size:2.5rem; margin-bottom:12px;">🔑</div>
+        <h1 style="font-size:1.8rem; font-weight:800; color:var(--text-main);">Citizen Sign In</h1>
+        <p style="color:var(--text-muted); font-size:0.95rem; margin-top:6px;">
+          Sign in to track your reported civic issues
+        </p>
+      </div>
+
+      {% if error %}
+      <div class="alert alert-danger">⚠️ {{ error }}</div>
+      {% endif %}
+
+      {% if success %}
+      <div class="alert alert-success">✅ {{ success }}</div>
+      {% endif %}
+
+      <form method="post" action="/login">
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="form-control"
+            placeholder="your@email.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-control"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:1rem; margin-top:4px;">
+          Sign In
+        </button>
+      </form>
+
+      <p style="text-align:center; margin-top:20px; font-size:0.9rem; color:var(--text-muted);">
+        Don't have an account?
+        <a href="/register" style="font-weight:600;">Register here</a>
+      </p>
+
+      {% if not db_enabled %}
+      <!-- OFFLINE DEMO CITIZEN HELPER -->
+      <div style="margin-top: 20px; padding: 14px 16px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); text-align: left;">
+        <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+          <span>ℹ️</span> <span>Local Demo Citizen Account (Offline Mock):</span>
+        </div>
+        <div style="line-height: 1.6;">
+          • <strong>Email:</strong> <code>ali.ahmed@example.com</code><br/>
+          • <strong>Password:</strong> <code>Citizen123!</code>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+
+    <!-- PORTAL LINKS -->
+    <div style="text-align:center; margin-top:20px; font-size:0.82rem; color:var(--text-muted);">
+      Other portals:
+      <a href="/staff/login" style="margin:0 8px; font-weight:600;">Staff Portal</a>·
+      <a href="/admin/login" style="margin:0 8px; font-weight:600;">Admin Portal</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

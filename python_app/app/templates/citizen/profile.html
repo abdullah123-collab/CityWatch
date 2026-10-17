@@ -1,0 +1,59 @@
+{% extends "citizen/base.html" %}
+{% block title %}Citizen Profile{% endblock %}
+
+{% block content %}
+<div class="container-narrow" style="padding: 50px 24px;">
+  <div class="card" style="padding: 36px;">
+    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 28px;">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: grid; place-items: center; font-weight: 800; font-size: 1.5rem;">
+        {{ user.full_name[0] | upper if user and user.full_name else 'C' }}
+      </div>
+      <div>
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary); text-transform: uppercase;">
+          Citizen Account
+        </span>
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
+          {{ user.full_name }}
+        </h1>
+        <span class="badge badge-resolved" style="margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;">
+          🛡️ Verified Citizen Account
+        </span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
+      <div style="padding: 16px; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Email Address</span>
+        <p style="font-weight: 700; margin-top: 4px; color: var(--text-main);">
+          📧 {{ user.email }}
+        </p>
+      </div>
+
+      <div style="padding: 16px; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Contact Phone</span>
+        <p style="font-weight: 700; margin-top: 4px; color: var(--text-main);">
+          📞 {{ user.phone or 'Not provided' }}
+        </p>
+      </div>
+
+      <div style="padding: 16px; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border); grid-column: span 2;">
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Registered Address</span>
+        <p style="font-weight: 700; margin-top: 4px; color: var(--text-main);">
+          📍 {{ user.address or 'Standard Municipal Jurisdiction' }}
+        </p>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 24px;">
+      <a href="/dashboard" class="btn btn-outline btn-sm">
+        ← Back to Dashboard
+      </a>
+      <form method="post" action="/logout">
+        <button type="submit" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: var(--danger);">
+          Sign Out of CityWatch
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
