@@ -1,0 +1,163 @@
+{% extends "staff/base.html" %}
+{% block title %}Officer Dashboard{% endblock %}
+
+{% block content %}
+{% set status_class = {'Pending': 'badge-pending', 'In Progress': 'badge-in-progress', 'Resolved': 'badge-resolved', 'Rejected': 'badge-rejected'} %}
+{% set priority_class = {'Low': 'badge-low', 'Medium': 'badge-medium', 'High': 'badge-high', 'Critical': 'badge-critical'} %}
+
+<div class="container" style="padding: 36px 24px;">
+
+  {% if not db_enabled %}
+  <div class="alert alert-info" style="margin-bottom: 24px;">
+    ℹ️ <strong>Database not yet connected.</strong> Demo mode active — live assigned complaints require approved SQL connection.
+  </div>
+  {% endif %}
+
+  {% if db_error %}
+  <div class="alert alert-danger" style="margin-bottom: 24px;">⚠️ {{ db_error }}</div>
+  {% endif %}
+
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em;">
+        Municipal Operations
+      </span>
+      <h1 style="font-size: 1.9rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
+        Officer Case Management
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem;">
+        Logged in as <strong>{{ user.full_name }}</strong> ({{ user.designation or 'Field Officer' }} — {{ user.dept_name or 'Municipal Dept' }}).
+      </p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="/staff/dashboard" class="btn btn-outline btn-sm">🔄 Refresh</a>
+      <a href="/staff/complaints" class="btn btn-primary btn-sm">View All Assigned</a>
+    </div>
+  </div>
+
+  <!-- WORKLOAD CAPACITY PROGRESS BAR -->
+  {% set active_cases = dashboard.workload.activeCases if dashboard and dashboard.workload else (complaints|length) %}
+  {% set max_capacity = dashboard.workload.maxCapacity if dashboard and dashboard.workload else 5 %}
+  {% set pct = [((active_cases / max_capacity) * 100)|round, 100]|min %}
+
+  <div class="card" style="padding: 20px; margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <span style="font-weight: 700; font-size: 0.9rem;">Officer Active Workload</span>
+      <span style="font-size: 0.85rem; font-weight: 600; color: {% if pct > 80 %}var(--danger){% else %}var(--primary){% endif %};">
+        {{ active_cases }} / {{ max_capacity }} active cases ({{ pct }}% capacity)
+      </span>
+    </div>
+    <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
+      <div style="height: 100%; width: {{ pct }}%; background: {% if pct > 80 %}var(--danger){% elif pct > 50 %}var(--warning){% else %}var(--success){% endif %}; transition: width 0.3s ease;"></div>
+    </div>
+  </div>
+
+  <!-- METRIC COUNTERS -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px;">
+    <div class="card" style="padding: 16px; margin-bottom: 0;">
+      <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">TOTAL ASSIGNED</span>
+      <h3 style="font-size: 1.6rem; font-weight: 800; margin-top: 4;">
+        {{ dashboard.counts.total if dashboard and dashboard.counts else complaints|length }}
+      </h3>
+    </div>
+    <div class="card" style="padding: 16px; margin-bottom: 0;">
+      <span style="font-size: 0.8rem; color: #b45309; font-weight: 600;">PENDING INSPECTION</span>
+      <h3 style="font-size: 1.6rem; font-weight: 800; margin-top: 4; color: #b45309;">
+        {{ dashboard.counts.pending if dashboard and dashboard.counts else complaints|selectattr('status', 'equalto', 'Pending')|list|length }}
+      </h3>
+    </div>
+    <div class="card" style="padding: 16px; margin-bottom: 0;">
+      <span style="font-size: 0.8rem; color: #0369a1; font-weight: 600;">IN PROGRESS</span>
+      <h3 style="font-size: 1.6rem; font-weight: 800; margin-top: 4; color: #0369a1;">
+        {{ dashboard.counts.inProgress if dashboard and dashboard.counts else complaints|selectattr('status', 'equalto', 'In Progress')|list|length }}
+      </h3>
+    </div>
+    <div class="card" style="padding: 16px; margin-bottom: 0;">
+      <span style="font-size: 0.8rem; color: #15803d; font-weight: 600;">RESOLVED</span>
+      <h3 style="font-size: 1.6rem; font-weight: 800; margin-top: 4; color: #15803d;">
+        {{ dashboard.counts.resolved if dashboard and dashboard.counts else complaints|selectattr('status', 'equalto', 'Resolved')|list|length }}
+      </h3>
+    </div>
+  </div>
+
+  <!-- ASSIGNED COMPLAINTS LIST -->
+  <div class="card" style="padding: 24px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+      <h2 style="font-size: 1.25rem; font-weight: 700;">Assigned Complaints</h2>
+      <form method="get" action="/staff/dashboard" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <input
+          type="text"
+          name="search"
+          class="form-control"
+          placeholder="Filter by title or address…"
+          value="{{ filters.search or '' }}"
+          style="width: 220px;"
+        />
+        <select name="status_filter" class="form-control" style="width: 150px;">
+          <option value="All">All Statuses</option>
+          <option value="Pending" {% if filters.status == 'Pending' %}selected{% endif %}>Pending</option>
+          <option value="In Progress" {% if filters.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+          <option value="Resolved" {% if filters.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+      </form>
+    </div>
+
+    {% if complaints %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Case ID</th>
+            <th>Title &amp; Category</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Location</th>
+            <th>Submitted</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in complaints %}
+          <tr>
+            <td><strong>#{{ c.complaint_id }}</strong></td>
+            <td>
+              <div style="font-weight: 700;">{{ c.title }}</div>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">{{ c.category }}</span>
+            </td>
+            <td>
+              <span class="badge {{ priority_class.get(c.priority, 'badge-medium') }}">
+                {{ c.priority }}
+              </span>
+            </td>
+            <td>
+              <span class="badge {{ status_class.get(c.status, 'badge-pending') }}">
+                {{ c.status }}
+              </span>
+            </td>
+            <td style="font-size: 0.85rem;">
+              {{ [c.area_name, c.city]|select|join(', ') or '—' }}
+            </td>
+            <td style="font-size: 0.85rem; color: var(--text-muted);">
+              {{ c.submitted_at | string | truncate(10, true, '') }}
+            </td>
+            <td>
+              <a href="/staff/complaints/{{ c.complaint_id }}" class="btn btn-outline btn-sm">
+                Case Details &amp; Update →
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
+      <div style="font-size: 2.2rem; margin-bottom: 8px; opacity: 0.4;">📋</div>
+      <p style="font-weight: 600;">No complaints assigned matching this criteria.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

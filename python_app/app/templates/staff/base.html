@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Staff Portal{% endblock %} — CityWatch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/staff.css" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="app-container">
+
+  <!-- STAFF NAVBAR -->
+  <nav class="navbar">
+    <div class="container navbar-inner">
+      <a href="/staff/dashboard" class="brand">
+        CityWatch
+        <span class="brand-badge">STAFF</span>
+      </a>
+      {% if user %}
+      <div class="nav-links">
+        <a href="/staff/dashboard" class="nav-link {% if 'dashboard' in request.url.path %}active{% endif %}">
+          Dashboard
+        </a>
+        <a href="/staff/complaints" class="nav-link {% if 'complaints' in request.url.path %}active{% endif %}">
+          Assigned Cases
+        </a>
+        <a href="/staff/profile" class="nav-link {% if 'profile' in request.url.path %}active{% endif %}">
+          {{ user.full_name }}
+        </a>
+        <form method="post" action="/staff/logout" style="display:inline">
+          <button type="submit" class="btn btn-outline btn-sm">Sign Out</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>© 2026 CityWatch Municipal Platform · Staff Operations</span>
+      <span style="font-size:0.82rem">SQL Server Secured · Role-Enforced Access</span>
+    </div>
+  </footer>
+
+</div>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

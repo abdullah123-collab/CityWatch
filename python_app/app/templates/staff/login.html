@@ -1,0 +1,105 @@
+{% extends "staff/base.html" %}
+{% block title %}Staff Sign In{% endblock %}
+
+{% block content %}
+<div class="container-narrow" style="padding: 60px 24px; max-width: 500px; margin: 0 auto;">
+  <div class="card" style="padding: 36px;">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="width: 52px; height: 52px; border-radius: 12px; background: var(--primary-light); color: var(--primary); display: grid; place-items: center; font-size: 1.5rem; margin: 0 auto 12px;">
+        🏛️
+      </div>
+      <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main);">
+        Staff Portal Sign In
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
+        Authorized municipal field officers &amp; department staff.
+      </p>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger" style="margin-bottom: 20px;">
+      ⚠️ {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="/staff/login">
+      <!-- DEPARTMENT SELECTION -->
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label class="form-label" for="dept_id" style="font-weight: 600;">Assigned Department</label>
+        <select
+          id="dept_id"
+          name="dept_id"
+          class="form-control"
+          required
+        >
+          <option value="" disabled selected>— Select your department —</option>
+          {% for dept in departments %}
+          <option value="{{ dept.dept_id }}">{{ dept.dept_name }}</option>
+          {% endfor %}
+        </select>
+        {% if not db_enabled %}
+        <span style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-top: 4px;">
+          Offline development mode: demo departments active.
+        </span>
+        {% endif %}
+      </div>
+
+      <!-- STAFF IDENTIFIER (ID OR EMAIL) -->
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label class="form-label" for="identifier" style="font-weight: 600;">Staff ID or Official Email</label>
+        <input
+          type="text"
+          id="identifier"
+          name="identifier"
+          class="form-control"
+          placeholder="e.g. 1 or ahmed.staff@example.com"
+          required
+          autofocus
+        />
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label class="form-label" for="password" style="font-weight: 600;">Account Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-control"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 700;">
+        Authenticate Officer Account
+      </button>
+    </form>
+
+    {% if not db_enabled %}
+    <!-- OFFLINE DEMO ACCOUNTS HELPER -->
+    <div style="margin-top: 24px; padding: 14px 16px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; font-size: 0.78rem; color: var(--text-muted);">
+      <div style="font-weight: 700; color: var(--text-main); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+        <span>ℹ️</span> <span>Local Demo Accounts (Offline Mock — Not in DB):</span>
+      </div>
+      <div style="line-height: 1.6;">
+        • <strong>Sanitation:</strong> ID <code>1</code> (or <code>ahmed.staff@example.com</code>) / <code>StaffPass123!</code><br/>
+        • <strong>Roads:</strong> ID <code>2</code> (or <code>usman.staff@example.com</code>) / <code>StaffPass123!</code><br/>
+        • <strong>Water:</strong> ID <code>3</code> (or <code>hassan.staff@example.com</code>) / <code>StaffPass123!</code><br/>
+        • <strong>Electricity:</strong> ID <code>4</code> (or <code>bilal.staff@example.com</code>) / <code>StaffPass123!</code>
+      </div>
+      <div style="font-size: 0.72rem; color: #64748b; margin-top: 6px;">
+        <em>Note: Staff members can only log in under their assigned department. Cross-department logins are blocked.</em>
+      </div>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 24px; text-align: center; font-size: 0.82rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 16px;">
+      <span>Need access? Contact municipal system administration.</span>
+      <div style="margin-top: 8px;">
+        <a href="/login">Citizen Portal</a> · <a href="/admin/login">Admin Command Center</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

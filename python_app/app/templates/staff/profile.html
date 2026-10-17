@@ -1,0 +1,66 @@
+{% extends "staff/base.html" %}
+{% block title %}Officer Profile{% endblock %}
+
+{% block content %}
+<div class="container-narrow" style="padding: 50px 24px; max-width: 640px; margin: 0 auto;">
+  <div class="card" style="padding: 36px;">
+    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 28px;">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 1.5rem;">
+        {{ user.full_name[0] | upper if user and user.full_name else 'S' }}
+      </div>
+      <div>
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent); text-transform: uppercase;">
+          Municipal Staff Profile
+        </span>
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
+          {{ user.full_name }}
+        </h1>
+        <span class="badge badge-in-progress" style="margin-top: 4px;">
+          {{ user.designation or 'Field Officer' }}
+        </span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
+      <div style="padding: 16px; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Department</span>
+        <p style="font-weight: 700; margin-top: 4px; color: var(--text-main);">
+          🏢 {{ user.dept_name or 'Municipal Dept' }}
+        </p>
+      </div>
+
+      <div style="padding: 16px; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Official Email</span>
+        <p style="font-weight: 700; margin-top: 4px; color: var(--text-main);">
+          📧 {{ user.email }}
+        </p>
+      </div>
+
+      <div style="padding: 16px; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Contact Phone</span>
+        <p style="font-weight: 700; margin-top: 4px; color: var(--text-main);">
+          📞 {{ user.phone or 'Not recorded' }}
+        </p>
+      </div>
+
+      <div style="padding: 16px; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Active Cases</span>
+        <p style="font-weight: 700; margin-top: 4px; color: var(--text-main);">
+          📋 {{ user.active_cases or 0 }} open assignments
+        </p>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 24px;">
+      <a href="/staff/dashboard" class="btn btn-outline btn-sm">
+        ← Back to Dashboard
+      </a>
+      <form method="post" action="/staff/logout">
+        <button type="submit" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: var(--danger);">
+          Sign Out of Staff Portal
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "staff/base.html" %}
+{% block title %}Assigned Cases{% endblock %}
+
+{% block content %}
+{% set status_class = {'Pending': 'badge-pending', 'In Progress': 'badge-in-progress', 'Resolved': 'badge-resolved', 'Rejected': 'badge-rejected'} %}
+{% set priority_class = {'Low': 'badge-low', 'Medium': 'badge-medium', 'High': 'badge-high', 'Critical': 'badge-critical'} %}
+
+<div class="container" style="padding: 36px 24px;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em;">
+        Field Operations
+      </span>
+      <h1 style="font-size: 1.9rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
+        All Assigned Complaints
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem;">
+        Filtered list of grievances assigned to your officer account.
+      </p>
+    </div>
+    <a href="/staff/dashboard" class="btn btn-outline btn-sm">
+      ← Back to Dashboard
+    </a>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="card" style="padding: 20px; margin-bottom: 24px;">
+    <form method="get" action="/staff/complaints" style="display: flex; gap: 12px; flex-wrap: wrap;">
+      <div style="flex: 1 1 240px;">
+        <input
+          type="text"
+          name="search"
+          class="form-control"
+          placeholder="Search by title, location or keywords…"
+          value="{{ filters.search or '' }}"
+        />
+      </div>
+
+      <div style="width: 170px;">
+        <select name="status_filter" class="form-control">
+          <option value="All">All Statuses</option>
+          <option value="Pending" {% if filters.status == 'Pending' %}selected{% endif %}>Pending</option>
+          <option value="In Progress" {% if filters.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+          <option value="Resolved" {% if filters.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+          <option value="Rejected" {% if filters.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+      </div>
+
+      <div style="width: 160px;">
+        <select name="priority" class="form-control">
+          <option value="All">All Priorities</option>
+          <option value="Low" {% if filters.priority == 'Low' %}selected{% endif %}>Low</option>
+          <option value="Medium" {% if filters.priority == 'Medium' %}selected{% endif %}>Medium</option>
+          <option value="High" {% if filters.priority == 'High' %}selected{% endif %}>High</option>
+          <option value="Critical" {% if filters.priority == 'Critical' %}selected{% endif %}>Critical</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-sm">Apply Filters</button>
+      <a href="/staff/complaints" class="btn btn-outline btn-sm">Reset</a>
+    </form>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card" style="padding: 24px;">
+    {% if complaints %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Case ID</th>
+            <th>Title &amp; Category</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Address</th>
+            <th>Submitted</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in complaints %}
+          <tr>
+            <td><strong>#{{ c.complaint_id }}</strong></td>
+            <td>
+              <div style="font-weight: 700;">{{ c.title }}</div>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">{{ c.category }}</span>
+            </td>
+            <td>
+              <span class="badge {{ priority_class.get(c.priority, 'badge-medium') }}">
+                {{ c.priority }}
+              </span>
+            </td>
+            <td>
+              <span class="badge {{ status_class.get(c.status, 'badge-pending') }}">
+                {{ c.status }}
+              </span>
+            </td>
+            <td style="font-size: 0.85rem;">
+              {{ [c.area_name, c.city]|select|join(', ') or '—' }}
+            </td>
+            <td style="font-size: 0.85rem; color: var(--text-muted);">
+              {{ c.submitted_at | string | truncate(10, true, '') }}
+            </td>
+            <td>
+              <a href="/staff/complaints/{{ c.complaint_id }}" class="btn btn-outline btn-sm">
+                Open Case →
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
+      <p style="font-weight: 600;">No complaints match the filter criteria.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
