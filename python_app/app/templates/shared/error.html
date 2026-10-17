@@ -1,0 +1,20 @@
+{% extends "citizen/base.html" %}
+{% block title %}Error {{ code }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 80px 24px; max-width: 600px; text-align: center;">
+  <div style="font-size: 4rem; font-weight: 800; color: var(--primary); margin-bottom: 8px;">
+    {{ code }}
+  </div>
+  <h1 style="font-size: 1.8rem; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">
+    {% if code == 404 %}Page Not Found{% elif code == 403 %}Access Forbidden{% elif code == 401 %}Authentication Required{% else %}System Error{% endif %}
+  </h1>
+  <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 28px;">
+    {{ message or "An unexpected issue occurred while processing your municipal request." }}
+  </p>
+  <div style="display: flex; justify-content: center; gap: 12px;">
+    <a href="/" class="btn btn-primary">Return to Homepage</a>
+    <button onclick="history.back()" class="btn btn-outline">Go Back</button>
+  </div>
+</div>
+{% endblock %}
