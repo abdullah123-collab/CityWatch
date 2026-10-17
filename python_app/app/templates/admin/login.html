@@ -1,0 +1,77 @@
+{% extends "admin/base.html" %}
+{% block title %}Admin Sign In{% endblock %}
+
+{% block content %}
+<div class="container-narrow" style="padding: 60px 24px; max-width: 480px; margin: 0 auto;">
+  <div class="card" style="padding: 36px;">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="width: 52px; height: 52px; border-radius: 12px; background: var(--primary); color: #fff; display: grid; place-items: center; font-size: 1.5rem; margin: 0 auto 12px;">
+        🛡️
+      </div>
+      <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main);">
+        Admin Command Center
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
+        Municipal executive oversight &amp; administrative access.
+      </p>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger" style="margin-bottom: 20px;">
+      ⚠️ {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="/admin/login">
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label class="form-label" style="font-weight: 600;">Administrator Email</label>
+        <input
+          type="email"
+          name="email"
+          class="form-control"
+          placeholder="admin@citywatch.gov"
+          required
+          autofocus
+        />
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label class="form-label" style="font-weight: 600;">Password</label>
+        <input
+          type="password"
+          name="password"
+          class="form-control"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 700;">
+        Authenticate Command Access
+      </button>
+    </form>
+
+    {% if not db_enabled %}
+    <!-- OFFLINE DEMO ACCOUNTS HELPER -->
+    <div style="margin-top: 24px; padding: 14px 16px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; font-size: 0.78rem; color: var(--text-muted);">
+      <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+        <span>ℹ️</span> <span>Local Demo Account (Offline Mock — Not in DB):</span>
+      </div>
+      <div>
+        • <strong>Admin:</strong> <code>admin@citywatch.gov</code> / <code>AdminPass123!</code>
+      </div>
+      <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">
+        <em>Strict role separation: Citizen and Staff credentials cannot access the Admin Command Center.</em>
+      </div>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 24px; text-align: center; font-size: 0.82rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 16px;">
+      <span>SQL Server Enterprise Backed · Role Enforced</span>
+      <div style="margin-top: 8px;">
+        <a href="/login">Citizen Portal</a> · <a href="/staff/login">Staff Portal</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

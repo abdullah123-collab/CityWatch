@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Admin{% endblock %} — CityWatch Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/admin.css" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="app-container">
+
+  <!-- ADMIN NAVBAR (dark navy background like React app) -->
+  <nav class="navbar">
+    <div class="container navbar-inner">
+      <a href="/admin/dashboard" class="brand">
+        🛡 CityWatch
+        <span class="brand-badge">ADMIN</span>
+      </a>
+      {% if user %}
+      <div class="nav-links">
+        <a href="/admin/dashboard" class="nav-link {% if 'dashboard' in request.url.path %}active{% endif %}">Dashboard</a>
+        <a href="/admin/complaints" class="nav-link {% if 'complaints' in request.url.path %}active{% endif %}">Complaints</a>
+        <a href="/admin/staff" class="nav-link {% if '/admin/staff' in request.url.path %}active{% endif %}">Staff</a>
+        <a href="/admin/citizens" class="nav-link {% if 'citizens' in request.url.path %}active{% endif %}">Citizens</a>
+        <a href="/admin/departments" class="nav-link {% if 'departments' in request.url.path %}active{% endif %}">Departments</a>
+        <a href="/admin/feedback" class="nav-link {% if 'feedback' in request.url.path %}active{% endif %}">Feedback</a>
+        <a href="/admin/audit-logs" class="nav-link {% if 'audit' in request.url.path %}active{% endif %}">Audit Logs</a>
+        <form method="post" action="/admin/logout" style="display:inline">
+          <button type="submit" class="btn btn-outline-white btn-sm">Sign Out</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>© 2026 CityWatch Administrative System</span>
+      <span style="font-size:0.82rem">SQL Server Enterprise Integration · ACID Transactions</span>
+    </div>
+  </footer>
+
+</div>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

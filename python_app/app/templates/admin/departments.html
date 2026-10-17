@@ -1,0 +1,132 @@
+{% extends "admin/base.html" %}
+{% block title %}Departments Registry{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 36px 24px;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em;">
+        Municipal Structure
+      </span>
+      <h1 style="font-size: 1.9rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
+        Municipal Departments
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem;">
+        Configure municipal functional divisions, complaint routing categories, and officer assignments.
+      </p>
+    </div>
+    <a href="#addDeptForm" class="btn btn-primary btn-sm">
+      ＋ Add New Department
+    </a>
+  </div>
+
+  {% if not db_enabled %}
+  <div class="alert alert-info" style="margin-bottom: 20px;">
+    ℹ️ <strong>Database not yet connected.</strong> Demo mode active — live departments require approved SQL connection.
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="alert alert-danger" style="margin-bottom: 20px;">⚠️ {{ error }}</div>
+  {% endif %}
+
+  {% if success %}
+  <div class="alert alert-success" style="margin-bottom: 20px;">✅ {{ success }}</div>
+  {% endif %}
+
+  <!-- DEPARTMENTS TABLE -->
+  <div class="card" style="padding: 24px; margin-bottom: 32px;">
+    <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;">
+      Active Department Registry
+    </h2>
+
+    {% if departments %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Department Name</th>
+            <th>Service Category</th>
+            <th>Contact Email</th>
+            <th>Contact Phone</th>
+            <th>Head Officer</th>
+            <th>Total Complaints</th>
+            <th>Active Staff</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in departments %}
+          <tr>
+            <td><strong>#{{ d.dept_id }}</strong></td>
+            <td>
+              <div style="font-weight: 700;">{{ d.dept_name }}</div>
+            </td>
+            <td>
+              <span class="badge badge-medium">{{ d.category }}</span>
+            </td>
+            <td style="font-size: 0.85rem;">{{ d.contact_email or '—' }}</td>
+            <td style="font-size: 0.85rem;">{{ d.contact_phone or '—' }}</td>
+            <td style="font-size: 0.85rem;">{{ d.head_officer or '—' }}</td>
+            <td><strong>{{ d.complaint_count or 0 }}</strong></td>
+            <td>{{ d.staff_count or 0 }} officers</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+      <p style="font-weight: 600;">No department records found.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ADD DEPARTMENT FORM -->
+  <div id="addDeptForm" class="card" style="padding: 32px;">
+    <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 6px;">
+      Register New Municipal Department
+    </h2>
+    <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 24px;">
+      Adds a department entry to <code>dbo.Department</code> for citizen grievance routing and staff assignment.
+    </p>
+
+    <form method="post" action="/admin/departments">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Department Name *</label>
+          <input type="text" name="dept_name" class="form-control" placeholder="e.g. Parks &amp; Recreation Department" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Service Category *</label>
+          <input type="text" name="category" class="form-control" placeholder="e.g. Parks &amp; Greenery" required />
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Contact Email</label>
+          <input type="email" name="contact_email" class="form-control" placeholder="parks@citywatch.gov" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Contact Phone</label>
+          <input type="text" name="contact_phone" class="form-control" placeholder="+1 (555) 012-4400" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Head Officer / Director</label>
+          <input type="text" name="head_officer" class="form-control" placeholder="Director Name" />
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="padding: 12px 28px;">
+        Save Department
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

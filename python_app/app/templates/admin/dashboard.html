@@ -1,0 +1,175 @@
+{% extends "admin/base.html" %}
+{% block title %}Command Dashboard{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 36px 24px;">
+
+  {% if not db_enabled %}
+  <div class="alert alert-info" style="margin-bottom: 24px;">
+    ℹ️ <strong>Database not yet connected.</strong> Demo mode active — live analytics require approved SQL connection.
+  </div>
+  {% endif %}
+
+  {% if db_error %}
+  <div class="alert alert-danger" style="margin-bottom: 24px;">⚠️ {{ db_error }}</div>
+  {% endif %}
+
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em;">
+        Municipal Executive Overview
+      </span>
+      <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
+        CityWatch Command Dashboard
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem;">
+        Enterprise metrics, cross-departmental operations, and governance analytics.
+      </p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="/admin/dashboard" class="btn btn-outline btn-sm">🔄 Refresh Analytics</a>
+      <a href="/admin/complaints" class="btn btn-primary btn-sm">Manage Complaints</a>
+    </div>
+  </div>
+
+  {% set metrics = data.metrics if data and data.metrics else {} %}
+
+  <!-- METRIC CARDS GRID -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px;">
+    <div class="card" style="padding: 18px; margin-bottom: 0;">
+      <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">TOTAL COMPLAINTS</span>
+      <h3 style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 4px;">
+        {{ metrics.get('totalComplaints', 0) }}
+      </h3>
+      <span style="font-size: 0.78rem; color: var(--text-muted);">Across all departments</span>
+    </div>
+
+    <div class="card" style="padding: 18px; margin-bottom: 0;">
+      <span style="font-size: 0.8rem; color: #b45309; font-weight: 600;">PENDING TRIAGE</span>
+      <h3 style="font-size: 1.8rem; font-weight: 800; color: #b45309; margin-top: 4px;">
+        {{ metrics.get('pendingComplaints', 0) }}
+      </h3>
+      <span style="font-size: 0.78rem; color: var(--text-muted);">Awaiting review / assign</span>
+    </div>
+
+    <div class="card" style="padding: 18px; margin-bottom: 0;">
+      <span style="font-size: 0.8rem; color: #0369a1; font-weight: 600;">UNDER INVESTIGATION</span>
+      <h3 style="font-size: 1.8rem; font-weight: 800; color: #0369a1; margin-top: 4px;">
+        {{ metrics.get('inProgressComplaints', 0) }}
+      </h3>
+      <span style="font-size: 0.78rem; color: var(--text-muted);">Active field inspections</span>
+    </div>
+
+    <div class="card" style="padding: 18px; margin-bottom: 0;">
+      <span style="font-size: 0.8rem; color: #15803d; font-weight: 600;">RESOLVED</span>
+      <h3 style="font-size: 1.8rem; font-weight: 800; color: #15803d; margin-top: 4px;">
+        {{ metrics.get('resolvedComplaints', 0) }}
+      </h3>
+      <span style="font-size: 0.78rem; color: var(--text-muted);">Successfully addressed</span>
+    </div>
+
+    <div class="card" style="padding: 18px; margin-bottom: 0;">
+      <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">REGISTERED CITIZENS</span>
+      <h3 style="font-size: 1.8rem; font-weight: 800; margin-top: 4px;">
+        {{ metrics.get('totalCitizens', 0) }}
+      </h3>
+      <span style="font-size: 0.78rem; color: var(--text-muted);">Verified resident accounts</span>
+    </div>
+
+    <div class="card" style="padding: 18px; margin-bottom: 0;">
+      <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">FIELD OFFICERS</span>
+      <h3 style="font-size: 1.8rem; font-weight: 800; margin-top: 4px;">
+        {{ metrics.get('totalStaff', 0) }}
+      </h3>
+      <span style="font-size: 0.78rem; color: var(--text-muted);">Active staff members</span>
+    </div>
+  </div>
+
+  <!-- DEPARTMENT BREAKDOWN & STAFF WORKLOAD -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <!-- DEPARTMENT PERFORMANCE -->
+    <div class="card" style="padding: 24px; margin-bottom: 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 1.15rem; font-weight: 700;">Department Volume</h3>
+        <a href="/admin/departments" style="font-size: 0.85rem; font-weight: 600;">Manage Departments →</a>
+      </div>
+
+      {% if data and data.departmentStats %}
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>Category</th>
+              <th>Complaints</th>
+              <th>Resolved</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in data.departmentStats %}
+            <tr>
+              <td><strong>{{ d.dept_name }}</strong></td>
+              <td><span style="font-size: 0.8rem; color: var(--text-muted);">{{ d.category }}</span></td>
+              <td>{{ d.complaint_count }}</td>
+              <td><span style="color: #15803d; font-weight: 700;">{{ d.resolved_count }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p style="color: var(--text-muted); font-size: 0.9rem;">No department activity recorded.</p>
+      {% endif %}
+    </div>
+
+    <!-- OFFICER WORKLOAD -->
+    <div class="card" style="padding: 24px; margin-bottom: 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 1.15rem; font-weight: 700;">Officer Active Workloads</h3>
+        <a href="/admin/staff" style="font-size: 0.85rem; font-weight: 600;">Manage Staff →</a>
+      </div>
+
+      {% if data and data.staffWorkload %}
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Officer</th>
+              <th>Department</th>
+              <th>Active Cases</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in data.staffWorkload %}
+            <tr>
+              <td>
+                <div style="font-weight: 700;">{{ s.full_name }}</div>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">{{ s.designation }}</span>
+              </td>
+              <td style="font-size: 0.85rem;">{{ s.dept_name }}</td>
+              <td>
+                <span style="font-weight: 700; color: {% if s.active_cases > 4 %}var(--danger){% else %}var(--primary){% endif %};">
+                  {{ s.active_cases }} cases
+                </span>
+              </td>
+              <td>
+                {% if s.is_active == 1 or s.is_active == True %}
+                <span class="badge badge-resolved">Active</span>
+                {% else %}
+                <span class="badge badge-rejected">Disabled</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p style="color: var(--text-muted); font-size: 0.9rem;">No officer workloads recorded.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

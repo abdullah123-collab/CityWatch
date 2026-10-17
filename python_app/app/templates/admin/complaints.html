@@ -1,0 +1,149 @@
+{% extends "admin/base.html" %}
+{% block title %}Complaints Registry{% endblock %}
+
+{% block content %}
+{% set status_class = {'Pending': 'badge-pending', 'In Progress': 'badge-in-progress', 'Resolved': 'badge-resolved', 'Rejected': 'badge-rejected'} %}
+{% set priority_class = {'Low': 'badge-low', 'Medium': 'badge-medium', 'High': 'badge-high', 'Critical': 'badge-critical'} %}
+
+<div class="container" style="padding: 36px 24px;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em;">
+        Registry &amp; Triage
+      </span>
+      <h1 style="font-size: 1.9rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
+        City-Wide Complaints Registry
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem;">
+        Monitor, audit, and route civic complaints across all municipal departments.
+      </p>
+    </div>
+    <a href="/admin/dashboard" class="btn btn-outline btn-sm">
+      ← Back to Dashboard
+    </a>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="card" style="padding: 20px; margin-bottom: 24px;">
+    <form method="get" action="/admin/complaints" style="display: flex; gap: 12px; flex-wrap: wrap;">
+      <div style="flex: 1 1 220px;">
+        <input
+          type="text"
+          name="search"
+          class="form-control"
+          placeholder="Search title, citizen or keyword…"
+          value="{{ filters.search or '' }}"
+        />
+      </div>
+
+      <div style="width: 200px;">
+        <select name="dept_id" class="form-control">
+          <option value="">All Departments</option>
+          {% for d in departments %}
+          <option value="{{ d.dept_id }}" {% if filters.dept_id == (d.dept_id|string) %}selected{% endif %}>
+            {{ d.dept_name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="width: 150px;">
+        <select name="status_filter" class="form-control">
+          <option value="All">All Statuses</option>
+          <option value="Pending" {% if filters.status == 'Pending' %}selected{% endif %}>Pending</option>
+          <option value="In Progress" {% if filters.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+          <option value="Resolved" {% if filters.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+          <option value="Rejected" {% if filters.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+      </div>
+
+      <div style="width: 150px;">
+        <select name="priority" class="form-control">
+          <option value="All">All Priorities</option>
+          <option value="Low" {% if filters.priority == 'Low' %}selected{% endif %}>Low</option>
+          <option value="Medium" {% if filters.priority == 'Medium' %}selected{% endif %}>Medium</option>
+          <option value="High" {% if filters.priority == 'High' %}selected{% endif %}>High</option>
+          <option value="Critical" {% if filters.priority == 'Critical' %}selected{% endif %}>Critical</option>
+        </select>
+      </div>
+
+      <div style="width: 140px;">
+        <select name="sort" class="form-control">
+          <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest</option>
+          <option value="oldest" {% if filters.sort == 'oldest' %}selected{% endif %}>Oldest</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+      <a href="/admin/complaints" class="btn btn-outline btn-sm">Reset</a>
+    </form>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card" style="padding: 24px;">
+    {% if complaints %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title &amp; Category</th>
+            <th>Department</th>
+            <th>Citizen</th>
+            <th>Assigned Officer</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in complaints %}
+          <tr>
+            <td><strong>#{{ c.complaint_id }}</strong></td>
+            <td>
+              <div style="font-weight: 700;">{{ c.title }}</div>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">{{ c.category }}</span>
+            </td>
+            <td style="font-size: 0.85rem;">{{ c.department or '—' }}</td>
+            <td style="font-size: 0.85rem;">{{ c.citizen_name or 'Resident' }}</td>
+            <td style="font-size: 0.85rem;">
+              {% if c.assigned_staff %}
+              <span style="font-weight: 600;">{{ c.assigned_staff }}</span>
+              {% else %}
+              <span style="color: var(--danger); font-weight: 600;">Unassigned</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge {{ priority_class.get(c.priority, 'badge-medium') }}">
+                {{ c.priority }}
+              </span>
+            </td>
+            <td>
+              <span class="badge {{ status_class.get(c.status, 'badge-pending') }}">
+                {{ c.status }}
+              </span>
+            </td>
+            <td style="font-size: 0.82rem; color: var(--text-muted);">
+              {{ c.submitted_at | string | truncate(10, true, '') }}
+            </td>
+            <td>
+              <a href="/admin/complaints/{{ c.complaint_id }}" class="btn btn-outline btn-sm">
+                Case File →
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
+      <p style="font-weight: 600;">No complaints match the filter criteria.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

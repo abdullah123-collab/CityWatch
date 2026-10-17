@@ -1,0 +1,74 @@
+{% extends "admin/base.html" %}
+{% block title %}Registered Citizens Directory{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 36px 24px;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em;">
+        Constituency Directory
+      </span>
+      <h1 style="font-size: 1.9rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
+        Registered Citizens
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem;">
+        Resident accounts verified in the municipal database.
+      </p>
+    </div>
+    <a href="/admin/dashboard" class="btn btn-outline btn-sm">
+      ← Back to Dashboard
+    </a>
+  </div>
+
+  {% if not db_enabled %}
+  <div class="alert alert-info" style="margin-bottom: 20px;">
+    ℹ️ <strong>Database not yet connected.</strong> Demo mode active — live citizen directory requires approved SQL connection.
+  </div>
+  {% endif %}
+
+  {% if db_error %}
+  <div class="alert alert-danger" style="margin-bottom: 20px;">⚠️ {{ db_error }}</div>
+  {% endif %}
+
+  <div class="card" style="padding: 24px;">
+    {% if citizens %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Citizen Name</th>
+            <th>Email Address</th>
+            <th>Phone</th>
+            <th>Registered Address</th>
+            <th>Complaints Filed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in citizens %}
+          <tr>
+            <td><strong>#{{ c.citizen_id }}</strong></td>
+            <td>
+              <div style="font-weight: 700;">{{ c.full_name }}</div>
+            </td>
+            <td style="font-size: 0.85rem;">{{ c.email }}</td>
+            <td style="font-size: 0.85rem;">{{ c.phone or '—' }}</td>
+            <td style="font-size: 0.85rem;">{{ c.address or 'Standard Jurisdiction' }}</td>
+            <td>
+              <span class="badge badge-resolved">{{ c.complaint_count or 0 }} filed</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
+      <p style="font-weight: 600;">No citizen records found.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
